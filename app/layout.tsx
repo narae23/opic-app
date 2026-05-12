@@ -23,15 +23,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "OPIc Script Builder",
   description: "개인화된 OPIc 스크립트 생성 및 암기 앱",
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     title: "OPIc",
     statusBarStyle: "black-translucent",
-  },
-  icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
   },
 };
 
