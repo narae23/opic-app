@@ -57,7 +57,18 @@ export default function HomePage() {
       </header>
 
       <main className="max-w-2xl mx-auto p-4 space-y-4 pb-8">
-        <p className="text-gray-400 text-sm mt-2">주제를 선택하고 스크립트를 생성하세요.</p>
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-gray-400 text-sm">주제를 선택하고 스크립트를 생성하세요.</p>
+          <button
+            onClick={() => router.push("/add-topic")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium border border-gray-700 transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            주제 추가
+          </button>
+        </div>
 
         {topics.map((topic) => {
           const profile = profiles[topic];

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { setUserProfile, setTopicProfile, getTopicProfiles } from "@/lib/storage";
+import { COMMON_TOPICS, SELECTABLE_TOPICS } from "@/lib/topics";
 
 const LEVELS = ["IM1", "IM2", "IM3", "IH", "AL"];
 
@@ -13,25 +14,6 @@ const LEVEL_DESCRIPTIONS: Record<string, string> = {
   IH: "복잡한 주제 처리, 약 2,150단어",
   AL: "원어민 수준, 약 3,100단어",
 };
-
-const SELECTABLE_TOPICS = [
-  "영화 보기",
-  "공연/콘서트 보기",
-  "TV 시청하기",
-  "음악 감상하기",
-  "쇼핑하기",
-  "조깅/걷기",
-  "헬스/운동",
-  "운동을 전혀 안 함",
-  "독서",
-  "요리",
-  "집에서 보내는 휴가",
-  "국내여행",
-  "해외여행",
-  "사진 찍기",
-  "게임하기",
-  "반려동물 키우기",
-];
 
 type Step = "level" | "topics" | "keywords";
 
@@ -52,9 +34,11 @@ export default function OnboardingPage() {
   const [currentTopicIdx, setCurrentTopicIdx] = useState(0);
 
   const toggleTopic = (topic: string) => {
-    setSelectedTopics((prev) =>
-      prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]
-    );
+    setSelectedTopics((prev) => {
+      if (prev.includes(topic)) return prev.filter((t) => t !== topic);
+      if (prev.length >= 2) return prev;
+      return [...prev, topic];
+    });
   };
 
   const updateKeyword = (topic: string, field: string, value: string) => {
@@ -138,24 +122,32 @@ export default function OnboardingPage() {
 
         {step === "topics" && (
           <div>
-            <h2 className="text-2xl font-bold mb-2">주제를 선택하세요</h2>
-            <p className="text-gray-400 text-sm mb-1">시험에서 선택할 주제를 3개 이상 선택하세요.</p>
-            <p className="text-gray-500 text-xs mb-5">선택됨: {selectedTopics.length}개</p>
-            <div className="grid grid-cols-2 gap-2">
-              {SELECTABLE_TOPICS.map((topic) => (
-                <button
-                  key={topic}
-                  onClick={() => toggleTopic(topic)}
-                  className={`p-3 rounded-xl border-2 text-sm text-center transition-all ${
-                    selectedTopics.includes(topic)
-                      ? "border-blue-500 bg-blue-950/40 text-blue-300"
-                      : "border-gray-700 bg-gray-900 text-gray-300 hover:border-gray-500"
-                  }`}
-                >
-                  {topic}
-                </button>
-              ))}
+            <h2 className="text-2xl font-bold mb-1">주제를 선택하세요</h2>
+            <p className="text-gray-400 text-sm mb-1">1~2개를 선택하세요. 나중에 추가할 수 있어요.</p>
+            <p className="text-gray-500 text-xs mb-5">선택됨: {selectedTopics.length} / 2</p>
+
+            <TopicSection
+              title="공통형"
+              badge="시험 필수"
+              badgeColor="bg-orange-900 text-orange-300"
+              topics={COMMON_TOPICS}
+              selected={selectedTopics}
+              onToggle={toggleTopic}
+              disabled={selectedTopics.length >= 2}
+            />
+
+            <div className="mt-5">
+              <TopicSection
+                title="선택형"
+                badge="선택 과목"
+                badgeColor="bg-purple-900 text-purple-300"
+                topics={SELECTABLE_TOPICS}
+                selected={selectedTopics}
+                onToggle={toggleTopic}
+                disabled={selectedTopics.length >= 2}
+              />
             </div>
+
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setStep("level")}
@@ -168,7 +160,7 @@ export default function OnboardingPage() {
                   setCurrentTopicIdx(0);
                   setStep("keywords");
                 }}
-                disabled={selectedTopics.length < 3}
+                disabled={selectedTopics.length < 1}
                 className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 font-semibold transition-colors"
               >
                 다음
@@ -251,6 +243,52 @@ export default function OnboardingPage() {
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function TopicSection({
+  title,
+  badge,
+  badgeColor,
+  topics,
+  selected,
+  onToggle,
+  disabled,
+}: {
+  title: string;
+  badge: string;
+  badgeColor: string;
+  topics: string[];
+  selected: string[];
+  onToggle: (t: string) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <h3 className="text-sm font-semibold text-gray-200">{title}</h3>
+        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badgeColor}`}>{badge}</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {topics.map((topic) => {
+          const isSelected = selected.includes(topic);
+          return (
+            <button
+              key={topic}
+              onClick={() => onToggle(topic)}
+              disabled={disabled && !isSelected}
+              className={`px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                isSelected
+                  ? "border-blue-500 bg-blue-950/40 text-blue-300"
+                  : "border-gray-700 bg-gray-900 text-gray-300 hover:border-gray-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              }`}
+            >
+              {topic}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

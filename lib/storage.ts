@@ -95,6 +95,22 @@ export function saveScript(script: Script): void {
   }
 }
 
+export function addTopics(
+  newTopics: string[],
+  newProfiles: Record<string, Omit<TopicProfile, "generated_scripts">>
+): void {
+  const profile = getUserProfile();
+  if (!profile) return;
+  const merged = [...new Set([...profile.selected_topics, ...newTopics])];
+  setUserProfile({ ...profile, selected_topics: merged });
+  const existingProfiles = getTopicProfiles();
+  newTopics.forEach((topic) => {
+    if (!existingProfiles[topic]) {
+      setTopicProfile(topic, { ...newProfiles[topic], generated_scripts: [] });
+    }
+  });
+}
+
 export function updateSentenceMemorized(
   scriptId: string,
   sentenceId: number,
