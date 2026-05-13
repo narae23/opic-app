@@ -2,7 +2,6 @@
 
 export interface ApiKeys {
   google: string;
-  pinecone: string;
 }
 
 export interface UserProfile {

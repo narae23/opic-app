@@ -23,10 +23,13 @@ async function embedResult(result: ParseResult, googleKey: string, pineconeKey: 
 
 export async function POST(req: NextRequest) {
   const googleKey = req.headers.get("x-google-key") ?? "";
-  const pineconeKey = req.headers.get("x-pinecone-key") ?? "";
+  const pineconeKey = process.env.PINECONE_API_KEY ?? "";
 
-  if (!googleKey || !pineconeKey) {
-    return NextResponse.json({ error: "Missing Google or Pinecone key" }, { status: 400 });
+  if (!googleKey) {
+    return NextResponse.json({ error: "Missing Google API key" }, { status: 400 });
+  }
+  if (!pineconeKey) {
+    return NextResponse.json({ error: "Server misconfigured: PINECONE_API_KEY not set" }, { status: 500 });
   }
 
   const contentType = req.headers.get("content-type") ?? "";

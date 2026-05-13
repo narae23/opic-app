@@ -45,7 +45,7 @@ function ScriptsContent() {
 
   const handleGenerate = async () => {
     const keys = getApiKeys();
-    if (!keys?.google || !keys?.pinecone) {
+    if (!keys?.google) {
       setError("API 키가 설정되지 않았습니다. /setup으로 이동하세요.");
       return;
     }
@@ -62,7 +62,6 @@ function ScriptsContent() {
         headers: {
           "Content-Type": "application/json",
           "x-google-key": keys.google,
-          "x-pinecone-key": keys.pinecone,
         },
         body: JSON.stringify({ topic, questionType, targetLevel, topicProfile }),
       });

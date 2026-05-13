@@ -4,11 +4,14 @@ import { generateScript } from "@/lib/script_generator";
 import { TopicProfile } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
-  const googleKey = req.headers.get("x-google-key") ?? "";
-  const pineconeKey = req.headers.get("x-pinecone-key") ?? "";
+  const googleKey = req.headers.get("x-google-key") || process.env.GOOGLE_DEFAULT_API_KEY || "";
+  const pineconeKey = process.env.PINECONE_API_KEY ?? "";
 
-  if (!googleKey || !pineconeKey) {
-    return NextResponse.json({ error: "Missing API keys" }, { status: 400 });
+  if (!googleKey) {
+    return NextResponse.json({ error: "Google API 키가 필요합니다. /setup에서 키를 입력해주세요." }, { status: 400 });
+  }
+  if (!pineconeKey) {
+    return NextResponse.json({ error: "Server misconfigured: PINECONE_API_KEY not set" }, { status: 500 });
   }
 
   const body = (await req.json()) as {
