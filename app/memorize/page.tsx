@@ -51,6 +51,24 @@ function MemorizeContent() {
   const progress = Math.round((memorizedCount / script.sentences.length) * 100);
   const fullText = script.sentences.map((s) => s.text).join(" ");
 
+  const handleShare = async () => {
+    const text = [
+      `📝 ${script.topic} (${script.question_type}) · ${script.target_level}`,
+      ``,
+      `Q. ${script.question}`,
+      ``,
+      script.sentences.map((s, i) => `${i + 1}. ${s.text}`).join("\n"),
+      script.pivot_tags.length > 0 ? `\n${script.pivot_tags.map((t) => `#${t}`).join(" ")}` : "",
+    ].join("\n");
+
+    if (navigator.share) {
+      await navigator.share({ text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert("클립보드에 복사됐습니다.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <header className="sticky top-0 z-10 bg-gray-950/80 backdrop-blur border-b border-gray-800 px-4 py-3">
@@ -66,6 +84,15 @@ function MemorizeContent() {
               <p className="text-xs text-gray-400">{script.question_type} · {script.target_level}</p>
             </div>
             <TTSPlayer text={fullText} size="sm" />
+            <button
+              onClick={handleShare}
+              className="p-1.5 rounded-full bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors flex-shrink-0"
+              title="공유하기"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex-1 h-1.5 rounded-full bg-gray-800">

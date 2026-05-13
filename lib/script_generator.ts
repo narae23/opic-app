@@ -7,12 +7,13 @@ export interface GeneratedScript {
   pivot_tags: string[];
 }
 
-const LEVEL_WORD_TARGETS: Record<string, number> = {
-  IM1: 1450,
-  IM2: 1850,
-  IM3: 1950,
-  IH: 2150,
-  AL: 3100,
+// OPIc 1.5~2분 답변 기준 (~130 wpm)
+const LEVEL_SENTENCE_TARGETS: Record<string, { sentences: number; words: number }> = {
+  IM1: { sentences: 12, words: 160 },
+  IM2: { sentences: 14, words: 190 },
+  IM3: { sentences: 16, words: 220 },
+  IH:  { sentences: 18, words: 260 },
+  AL:  { sentences: 20, words: 300 },
 };
 
 function extractJson(raw: string): string {
@@ -41,17 +42,17 @@ export async function generateScript(
       "You are an OPIc exam expert. Generate natural, personalized English speaking scripts. Always respond with valid JSON only.",
   });
 
-  const targetWords = LEVEL_WORD_TARGETS[targetLevel] ?? 2000;
-  const sentenceCount = Math.round(targetWords / 20);
+  const target = LEVEL_SENTENCE_TARGETS[targetLevel] ?? { sentences: 15, words: 220 };
 
   const ragContext =
     ragChunks.length > 0
       ? `\n\nReference scripts for style and vocabulary:\n${ragChunks.map((c, i) => `[${i + 1}] ${c}`).join("\n\n")}`
       : "";
 
-  const prompt = `Generate a personalized OPIc speaking script with the following details:
+  const prompt = `Generate a personalized OPIc speaking script for a 1.5~2 minute spoken response.
 
-Target Level: ${targetLevel} (aim for ~${targetWords} total words, approximately ${sentenceCount} sentences)
+Target Level: ${targetLevel}
+Target length: exactly ${target.sentences} sentences, approximately ${target.words} words total
 Topic: ${topic}
 Question Type: ${questionType}
 Personal Keywords: ${topicProfile.keywords.join(", ") || "N/A"}
@@ -70,10 +71,11 @@ Respond with ONLY this JSON structure, no other text:
 }
 
 Requirements:
-- Natural and conversational (not essay-like)
+- Spoken response length only — do NOT exceed ${target.sentences} sentences
+- Natural and conversational, not essay-like
+- Each sentence should be speakable in one breath (not too long)
 - Incorporate the personal keywords and experience
-- pivot_tags: 2-4 key memory anchors in Korean
-- Vary sentence length`;
+- pivot_tags: 2-4 key memory anchors in Korean`;
 
   const result = await model.generateContent(prompt);
   const raw = result.response.text();

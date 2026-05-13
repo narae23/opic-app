@@ -98,6 +98,24 @@ function ScriptsContent() {
 
   const fullText = script?.sentences.map((s) => s.text).join(" ") ?? "";
 
+  const handleShare = async (s: Script) => {
+    const text = [
+      `📝 ${s.topic} (${s.question_type}) · ${s.target_level}`,
+      ``,
+      `Q. ${s.question}`,
+      ``,
+      s.sentences.map((sen, i) => `${i + 1}. ${sen.text}`).join("\n"),
+      s.pivot_tags.length > 0 ? `\n${s.pivot_tags.map((t) => `#${t}`).join(" ")}` : "",
+    ].join("\n");
+
+    if (navigator.share) {
+      await navigator.share({ text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert("클립보드에 복사됐습니다.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <header className="sticky top-0 z-10 bg-gray-950/80 backdrop-blur border-b border-gray-800 px-4 py-3">
@@ -185,12 +203,21 @@ function ScriptsContent() {
                 </div>
               ))}
             </div>
-            <div className="px-4 pb-4">
+            <div className="px-4 pb-4 flex gap-2">
               <button
                 onClick={() => router.push(`/memorize?id=${script.id}`)}
-                className="w-full py-2.5 rounded-xl bg-green-700 hover:bg-green-600 text-sm font-semibold transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-green-700 hover:bg-green-600 text-sm font-semibold transition-colors"
               >
                 암기 모드로 이동
+              </button>
+              <button
+                onClick={() => handleShare(script)}
+                className="px-4 py-2.5 rounded-xl bg-gray-700 hover:bg-gray-600 text-sm font-semibold transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                공유
               </button>
             </div>
           </div>
