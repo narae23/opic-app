@@ -81,8 +81,13 @@ function MemorizeContent() {
 
       <main className="max-w-2xl mx-auto p-4 pb-8 space-y-4">
         <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
-          <p className="text-xs text-gray-400 mb-1">Q.</p>
-          <p className="text-white font-medium">{script.question}</p>
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <p className="text-xs text-gray-400 mb-1">Q.</p>
+              <p className="text-white font-medium">{script.question}</p>
+            </div>
+            <TTSPlayer text={script.question} size="sm" />
+          </div>
           {script.pivot_tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {script.pivot_tags.map((tag) => (

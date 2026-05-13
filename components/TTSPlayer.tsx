@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 interface TTSPlayerProps {
   text: string;
@@ -53,19 +53,25 @@ export default function TTSPlayer({ text, onEnd, size = "md" }: TTSPlayerProps) 
     }
 
     window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-
     const voice = getBestEnglishVoice();
-    if (voice) utterance.voice = voice;
 
-    utterance.onend = () => { setPlaying(false); onEnd?.(); };
-    utterance.onerror = () => { setPlaying(false); };
+    // Chrome stops long utterances mid-way — split into sentences and play sequentially
+    const chunks = text.match(/[^.!?]+[.!?]+\s*/g) ?? [text];
+    let idx = 0;
 
-    window.speechSynthesis.speak(utterance);
+    const speakNext = () => {
+      if (idx >= chunks.length) { setPlaying(false); onEnd?.(); return; }
+      const utterance = new SpeechSynthesisUtterance(chunks[idx++].trim());
+      utterance.lang = "en-US";
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      if (voice) utterance.voice = voice;
+      utterance.onend = speakNext;
+      utterance.onerror = () => setPlaying(false);
+      window.speechSynthesis.speak(utterance);
+    };
+
+    speakNext();
     setPlaying(true);
   }, [text, playing, supported, getBestEnglishVoice, onEnd]);
 

@@ -153,12 +153,19 @@ function ScriptsContent() {
         {script && (
           <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
             <div className="p-4 border-b border-gray-800">
-              <div className="flex items-start justify-between gap-3">
-                <div>
+              <div className="flex items-start gap-3">
+                <div className="flex-1">
                   <p className="text-xs text-gray-400 mb-1">Q.</p>
                   <p className="font-medium text-white">{script.question}</p>
                 </div>
-                <TTSPlayer text={fullText} size="md" />
+                <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                  <TTSPlayer text={script.question} size="sm" />
+                  <span className="text-xs text-gray-600">질문</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                  <TTSPlayer text={fullText} size="md" />
+                  <span className="text-xs text-gray-600">전체</span>
+                </div>
               </div>
               {script.pivot_tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-3">
