@@ -68,8 +68,9 @@ function classifyPage(lines: string[]): PageType {
 
   const joined = nonEmpty.join(" ");
 
-  // Skip role-play scenario pages
+  // Skip role-play scenario setup pages and RP response dialogue pages
   if (/I'?d like to give you a situation|I'?m sorry,? but there is a problem/i.test(joined)) return "skip";
+  if (nonEmpty.slice(0, 5).some((l) => /^\s*Hi,|^\s*Hello,/i.test(l))) return "skip";
 
   // Command-form questions (Tell me, Describe, Explain...)
   const commandQuestions = nonEmpty.filter((l) =>

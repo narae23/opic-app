@@ -61,6 +61,7 @@ function classifyPage(lines) {
   }
 
   if (/I'?d like to give you a situation|I'?m sorry,? but there is a problem/i.test(joined)) return "skip";
+  if (nonEmpty.slice(0, 5).some(l => /^\s*Hi,|^\s*Hello,/i.test(l))) return "skip";
 
   const commandQuestions = nonEmpty.filter(l =>
     /^\s*(Tell me|Describe|Talk about|Explain|Discuss|Compare|What\b|How\b|Who\b|Where\b|When\b)/i.test(l)
