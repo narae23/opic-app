@@ -66,14 +66,24 @@ function classifyPage(lines: string[]): PageType {
     if (t.length >= 50 && !HANGUL_RE.test(t) && /^[A-Z"(]/.test(t)) longEnglishLines++;
   }
 
-  // Page is a past-exam question list: many questions, few long answers
-  if (questionLines >= 3 && longEnglishLines < 3) return "question";
+  const joined = nonEmpty.join(" ");
 
-  // Vocabulary: many short Korean lines interleaved with English, no long English
+  // Skip role-play scenario pages
+  if (/I'?d like to give you a situation|I'?m sorry,? but there is a problem/i.test(joined)) return "skip";
+
+  // Command-form questions (Tell me, Describe, Explain...)
+  const commandQuestions = nonEmpty.filter((l) =>
+    /^\s*(Tell me|Describe|Talk about|Explain|Discuss|Compare|What\b|How\b|Who\b|Where\b|When\b)/i.test(l)
+  ).length;
+
+  // Questions: "?" endings OR command-form question sentences
+  if (questionLines >= 2 || commandQuestions >= 2) return "question";
+
+  // Vocabulary: many short Korean lines, few long English lines
   if (koreanShortLines >= 4 && longEnglishLines < 3) return "vocabulary";
 
-  // Script: substantial English paragraphs
-  if (longEnglishLines >= 2) return "script";
+  // Script: substantial English paragraphs with NO question sentences
+  if (longEnglishLines >= 3 && questionLines === 0 && commandQuestions === 0) return "script";
 
   return "skip";
 }
